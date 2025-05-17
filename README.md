@@ -5,7 +5,8 @@ Codex test
 
 This is a minimal Python web app that serves a world dashboard.  It runs on the
 standard library only so it can execute without installing any external
-packages.
+packages.  The interface displays an interactive map and overlays several types
+of information so you can keep an eye on events around the globe.
 
 ### Setup
 
@@ -17,6 +18,19 @@ packages.
 Open your browser at `http://localhost:8080` to see the dashboard. The page
 shows an interactive world map with a day/night overlay and displays mock
 weather data at the equator as an example.
+
+## Features
+
+The current demo includes a few sample overlays to showcase future plans:
+
+* **Shipping containers** – markers show the simulated locations of cargo
+  vessels around the globe.
+* **Flights** – aircraft icons highlight example planes in the air.
+* **News and NASA alerts** – a panel under the map lists recent headlines and
+  space-related warnings.
+* **Wind patterns** – blue circles visualize areas of stronger wind.
+* **Thermal view** – click the *Toggle Thermal View* button to apply a heat-map
+  style filter to the map.
 
 ## Roadmap
 

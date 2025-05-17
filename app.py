@@ -20,7 +20,68 @@ class Handler(SimpleHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
-            data = {'current_weather': {'temperature': 25, 'windspeed': 10}}
+            data = {
+                'current_weather': {
+                    'temperature': 25,
+                    'windspeed': 10,
+                },
+                'global_summary': 'Calm conditions world wide.'
+            }
+            self.wfile.write(json.dumps(data).encode('utf-8'))
+        elif self.path == '/api/wind':
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            data = {
+                'patterns': [
+                    {'lat': 30, 'lon': -20, 'speed': 15, 'direction': 'NE'},
+                    {'lat': -10, 'lon': 60, 'speed': 5, 'direction': 'SW'},
+                ]
+            }
+            self.wfile.write(json.dumps(data).encode('utf-8'))
+        elif self.path == '/api/shipping':
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            data = {
+                'containers': [
+                    {'name': 'Atlantic Trader', 'lat': 40, 'lon': -30},
+                    {'name': 'Pacific Runner', 'lat': -5, 'lon': 150},
+                ]
+            }
+            self.wfile.write(json.dumps(data).encode('utf-8'))
+        elif self.path == '/api/flights':
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            data = {
+                'flights': [
+                    {'id': 'AB123', 'lat': 51.5, 'lon': -0.1},
+                    {'id': 'ZX987', 'lat': 34, 'lon': 138},
+                ]
+            }
+            self.wfile.write(json.dumps(data).encode('utf-8'))
+        elif self.path == '/api/news':
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            data = {
+                'articles': [
+                    {'title': 'Global trade surges despite challenges'},
+                    {'title': 'Scientists track unusual solar activity'},
+                ]
+            }
+            self.wfile.write(json.dumps(data).encode('utf-8'))
+        elif self.path == '/api/nasa':
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            data = {
+                'problems': [
+                    'Increased solar flare activity expected this week',
+                    'Orbital debris monitoring on high alert',
+                ]
+            }
             self.wfile.write(json.dumps(data).encode('utf-8'))
         else:
             super().do_GET()
