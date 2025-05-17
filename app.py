@@ -1,19 +1,38 @@
-from flask import Flask, render_template, jsonify
-import requests
+import json
+import os
+from http.server import HTTPServer, SimpleHTTPRequestHandler
 
-app = Flask(__name__)
+ROOT_DIR = os.path.dirname(__file__)
+TEMPLATE_PATH = os.path.join(ROOT_DIR, 'templates', 'index.html')
 
-@app.route("/")
-def index():
-    return render_template("index.html")
+class Handler(SimpleHTTPRequestHandler):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, directory=ROOT_DIR, **kwargs)
 
-@app.route("/api/weather")
-def weather():
-    url = "https://api.open-meteo.com/v1/forecast"
-    params = {"latitude": 0, "longitude": 0, "current_weather": True}
-    resp = requests.get(url, params=params, timeout=10)
-    resp.raise_for_status()
-    return jsonify(resp.json())
+    def do_GET(self):
+        if self.path == '/':
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html')
+            self.end_headers()
+            with open(TEMPLATE_PATH, 'rb') as f:
+                self.wfile.write(f.read())
+        elif self.path == '/api/weather':
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            data = {'current_weather': {'temperature': 25, 'windspeed': 10}}
+            self.wfile.write(json.dumps(data).encode('utf-8'))
+        else:
+            super().do_GET()
 
-if __name__ == "__main__":
-    app.run(debug=True)
+
+def run(port=5000):
+    httpd = HTTPServer(('0.0.0.0', port), Handler)
+    print(f'Serving on http://0.0.0.0:{port}')
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        pass
+
+if __name__ == '__main__':
+    run()
