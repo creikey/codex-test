@@ -78,3 +78,22 @@ document.getElementById('toggle-thermal').addEventListener('click', () => {
     const el = document.getElementById('map');
     el.classList.toggle('thermal');
 });
+
+let bitcoinMarker = null;
+function updateBitcoin() {
+    fetch('/api/bitcoin')
+        .then(r => r.json())
+        .then(data => {
+            if (bitcoinMarker) {
+                map.removeLayer(bitcoinMarker);
+            }
+            bitcoinMarker = L.marker([data.lat, data.lon])
+                .bindPopup(`Latest Bitcoin block height: ${data.height || 'N/A'}`)
+                .addTo(map);
+            document.getElementById('bitcoin').innerText =
+                `Latest block height: ${data.height || 'N/A'} (${data.note})`;
+        })
+        .catch(err => console.error('Bitcoin error', err));
+}
+updateBitcoin();
+setInterval(updateBitcoin, 60000);
