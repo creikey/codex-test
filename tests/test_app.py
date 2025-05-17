@@ -58,6 +58,11 @@ class AppTest(unittest.TestCase):
         data = self.get_json('/api/nasa')
         self.assertIn('problems', data)
 
+    def test_bitcoin_endpoint(self):
+        data = self.get_json('/api/bitcoin')
+        self.assertIn('lat', data)
+        self.assertIn('lon', data)
+
 
 if __name__ == '__main__':
     unittest.main()

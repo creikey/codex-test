@@ -31,6 +31,8 @@ The current demo includes a few sample overlays to showcase future plans:
 * **Wind patterns** – blue circles visualize areas of stronger wind.
 * **Thermal view** – click the *Toggle Thermal View* button to apply a heat-map
   style filter to the map.
+* **Bitcoin block location** – shows the latest block height with a marker. When
+  network access is unavailable, a placeholder is used.
 
 ## Roadmap
 

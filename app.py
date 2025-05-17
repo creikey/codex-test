@@ -1,6 +1,7 @@
 import json
 import os
 from http.server import HTTPServer, SimpleHTTPRequestHandler
+from urllib.request import urlopen
 
 ROOT_DIR = os.path.dirname(__file__)
 TEMPLATE_PATH = os.path.join(ROOT_DIR, 'templates', 'index.html')
@@ -82,6 +83,41 @@ class Handler(SimpleHTTPRequestHandler):
                     'Orbital debris monitoring on high alert',
                 ]
             }
+            self.wfile.write(json.dumps(data).encode('utf-8'))
+        elif self.path == '/api/bitcoin':
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            data = {
+                'height': None,
+                'lat': 0.0,
+                'lon': 0.0,
+                'note': 'offline placeholder'
+            }
+            if os.environ.get('ENABLE_BITCOIN_FETCH'):
+                try:
+                    with urlopen('https://blockchain.info/latestblock', timeout=5) as resp:
+                        latest = json.load(resp)
+                    block_hash = latest.get('hash')
+                    data['height'] = latest.get('height')
+                    if block_hash:
+                        with urlopen(f'https://blockchain.info/rawblock/{block_hash}', timeout=5) as resp:
+                            block = json.load(resp)
+                        # Use relayed_by IP if available (approximate)
+                        ip = block.get('relayed_by')
+                        if ip:
+                            # Attempt IP geolocation
+                            try:
+                                with urlopen(f'http://ip-api.com/json/{ip}', timeout=5) as resp:
+                                    geo = json.load(resp)
+                                if geo.get('status') == 'success':
+                                    data['lat'] = geo.get('lat', 0.0)
+                                    data['lon'] = geo.get('lon', 0.0)
+                            except Exception:
+                                pass
+                    data['note'] = 'live data' if data['height'] is not None else 'network unavailable'
+                except Exception:
+                    data['note'] = 'network unavailable'
             self.wfile.write(json.dumps(data).encode('utf-8'))
         else:
             super().do_GET()
