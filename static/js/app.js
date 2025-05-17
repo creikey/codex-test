@@ -8,8 +8,7 @@ const terminator = L.terminator();
 terminator.addTo(map);
 
 function updateTerminator() {
-    terminator.setTime();
-    terminator.redraw();
+    terminator.setTime(new Date());
 }
 updateTerminator();
 setInterval(updateTerminator, 1800000);
