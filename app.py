@@ -26,7 +26,9 @@ class Handler(SimpleHTTPRequestHandler):
             super().do_GET()
 
 
-def run(port=5000):
+def run(port=None):
+    if port is None:
+        port = int(os.environ.get('PORT', 8080))
     httpd = HTTPServer(('0.0.0.0', port), Handler)
     print(f'Serving on http://0.0.0.0:{port}')
     try:
@@ -35,4 +37,6 @@ def run(port=5000):
         pass
 
 if __name__ == '__main__':
-    run()
+    import sys
+    arg_port = int(sys.argv[1]) if len(sys.argv) > 1 else None
+    run(port=arg_port)
