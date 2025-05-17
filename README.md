@@ -14,7 +14,7 @@ packages.
    python app.py
    ```
 
-Open your browser at `http://localhost:5000` to see the dashboard. The page
+Open your browser at `http://localhost:8080` to see the dashboard. The page
 shows an interactive world map with a day/night overlay and displays mock
 weather data at the equator as an example.
 
@@ -30,7 +30,9 @@ dashboard:
 3. **Automatic analysis** – provide a simple AI-powered summary of data
    trends.
 4. **Testing** – expand automated tests and add screenshot checks once a
-   headless browser is available in the environment.
+   headless browser is available in the environment. A basic Puppeteer script
+   is included under `tests/e2e` which captures a screenshot of the map if the
+   library is installed.
 5. **Deployment** – package the app so it can run easily on any machine.
 
 ### Thoughts on Implementation
