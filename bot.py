@@ -33,7 +33,7 @@ def _truncate(text: str, max_len: int = 500) -> str:
     return text[: max_len - 1] + "…"
 
 
-async def _build_context_for_message(msg: discord.Message, history_count: int = 9) -> str:
+async def _build_context_for_message(msg: discord.Message, history_count: int = 20) -> str:
     """Build a short transcript of the last ~10 messages including the current one.
 
     We collect up to `history_count` messages before the current message, then append
@@ -127,13 +127,12 @@ def _estimate_cost_usd(model: str, input_tokens: int, output_tokens: int) -> flo
     return round(cost, 6)
 
 async def contains_inaccuracy(message: discord.Message) -> bool:
-    transcript = await _build_context_for_message(message, history_count=9)
+    transcript = await _build_context_for_message(message, history_count=20)
     prompt = (
-        "You are an acerbic, contrarian assistant named Dr. Snoid.") + (
-        " Reply 'yes' if the FINAL line in the transcript either (a) contains an objective factual inaccuracy,"
-        " (b) makes a naive, popular, or debatable claim with surface area to disagree with, or (c) confidently asserts"
-        " something that could use a corrective counterpoint. Reply 'no' only if there is nothing reasonable to correct or gripe about."
-        " Use earlier lines only as context; judge ONLY the final line."
+        "You are Dr. Snoid: acerbic, contrarian, and selective."
+        " Reply 'yes' only if the FINAL line in the transcript either (a) contains a clear, material factual error,"
+        " or (b) explicitly addresses you by name (e.g., 'Snoid') while presenting a claim worth correcting."
+        " Otherwise reply 'no'. Use earlier lines only as light context; judge ONLY the final line."
         " Answer with exactly 'yes' or 'no' and nothing else.\n\nTranscript (older → newer):\n" + transcript
     )
     decision_text, in_tok, out_tok = await _call_responses_api(CHEAP_MODEL, prompt)
@@ -153,12 +152,12 @@ async def contains_inaccuracy(message: discord.Message) -> bool:
     return decision.startswith("y")
 
 async def craft_critique(message: discord.Message, *, force_response: bool = False) -> str:
-    transcript = await _build_context_for_message(message, history_count=9)
+    transcript = await _build_context_for_message(message, history_count=20)
     base = (
-        "Adopt the persona of Dr. Snoid: acerbic, gripey, impatient, and contrarian."
+        "Adopt the persona of Dr. Snoid: acerbic, mischievous, contrarian, a little unhinged."
         " Identify the mistakes, naive assumptions, or weak arguments in ONLY the final line of the transcript below."
-        " Provide a pointed corrective counter-argument in a sharply critical tone."
-        " Keep it to at most two sentences."
+        " Respond with 1–2 ultra-short sentences: witty, punchy, chaotic syntax (fragments welcome), and a dash of absurd humor."
+        " You may call back a single word or phrase from earlier lines for comedic effect. No emojis."
     )
     if force_response:
         tail = (
@@ -184,12 +183,12 @@ async def craft_critique(message: discord.Message, *, force_response: bool = Fal
 
 async def craft_presence(message: discord.Message) -> str:
     """Generate a short, personal presence acknowledgement in Dr. Snoid's voice."""
-    transcript = await _build_context_for_message(message, history_count=9)
+    transcript = await _build_context_for_message(message, history_count=20)
     prompt = (
-        "You are Dr. Snoid: acerbic, sardonic, and terse."
+        "You are Dr. Snoid: acerbic, sardonic, witty, slightly chaotic."
         " Someone appears to be addressing or greeting you. Respond with a very short, personal acknowledgement"
-        " (max one short sentence), in-character. Do not be overly friendly."
-        " Avoid emojis.\n\nTranscript (older → newer):\n" + transcript
+        " (max 5–7 words), in-character, playful-weird, not overly friendly."
+        " No emojis.\n\nTranscript (older → newer):\n" + transcript
     )
     text, in_tok, out_tok = await _call_responses_api(THINKING_MODEL, prompt)
     cost = _estimate_cost_usd(THINKING_MODEL, in_tok, out_tok)
@@ -231,19 +230,22 @@ async def on_message(message: discord.Message):
             if presence:
                 await message.reply(presence, mention_author=False)
             return
+        # If Snoid is named but it's not a greeting, consider a critique sparingly
+        try:
+            if await contains_inaccuracy(message):
+                async with message.channel.typing():
+                    reply = await craft_critique(message)
+                cleaned = (reply or "").strip()
+                if cleaned and cleaned != "<no response necessary>":
+                    await message.reply(reply, mention_author=False)
+                    logger.info("Replied to message id=%s with named critique (%d chars)", message.id, len(reply))
+                else:
+                    logger.info("No named critique generated for message id=%s", message.id)
+            return
+        except Exception as exc:
+            logger.exception("Error handling named mention for message id=%s: %s", message.id, exc)
 
-    try:
-        if await contains_inaccuracy(message):
-            async with message.channel.typing():
-                reply = await craft_critique(message)
-            cleaned = (reply or "").strip()
-            if cleaned and cleaned != "<no response necessary>":
-                await message.reply(reply, mention_author=False)
-                logger.info("Replied to message id=%s with critique (%d chars)", message.id, len(reply))
-            else:
-                logger.info("No critique generated for message id=%s", message.id)
-    except Exception as exc:
-        logger.exception("Error handling message id=%s: %s", message.id, exc)
+    # By default, keep quiet unless explicitly mentioned
     await bot.process_commands(message)
 
 if __name__ == "__main__":
