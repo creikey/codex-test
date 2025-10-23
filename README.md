@@ -1,29 +1,17 @@
-# Fact-Checking Discord Bot
+# Flappy Bird Clone
 
-This repository provides a minimal Discord bot that critiques messages containing factual inaccuracies.
-It uses two OpenAI models:
+This repository contains a small, dependency-free Flappy Bird clone built with HTML5 canvas and vanilla JavaScript.
 
-- A cheap model to flag potential inaccuracies.
-- A more capable model to craft a terse, critical correction.
+## Getting Started
 
-## Setup
+1. Open `index.html` in your browser.
+2. Click the **Start** button or press the spacebar to begin.
+3. Tap, click, or press the spacebar to keep the bird flying and avoid the pipes.
 
-1. **Create a Discord application and bot** at [https://discord.com/developers](https://discord.com/developers) and invite it to your server.
-2. **Set environment variables**:
-   ```bash
-   export DISCORD_BOT_TOKEN="your discord bot token"
-   export OPENAI_API_KEY="your openai api key"
-   # Optional overrides
-   export CHEAP_MODEL="gpt-4o-mini"
-   export THINKING_MODEL="gpt-4o"
-   ```
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. **Run the bot**:
-   ```bash
-   python bot.py
-   ```
+## Controls
 
-The bot will watch messages in servers where it is present and reply with a terse critique when it detects a factual mistake.
+- **Spacebar / Click / Tap** – Flap the bird's wings.
+
+## Development
+
+No build steps are required. Modify `script.js` or `style.css` and refresh the browser to see your changes.
