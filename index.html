@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flappy Bird Clone</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="game-wrapper">
+    <h1>Flappy Bird Clone</h1>
+    <canvas id="game" width="480" height="640" aria-label="Flappy Bird Clone"></canvas>
+    <div class="hud">
+      <div class="score">
+        <span class="label">Score:</span>
+        <span id="score-value">0</span>
+      </div>
+      <button id="start-button" type="button">Start</button>
+    </div>
+    <p class="instructions">
+      Tap, click, or press space to flap. Avoid the pipes!
+    </p>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
